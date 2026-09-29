@@ -34,6 +34,33 @@ if (process.env.NODE_ENV !== 'test') {
   app.use(morgan('dev'));
 }
 
+let isInitialized = false;
+const ensureInitialized = async () => {
+  if (!isInitialized) {
+    await connectDB();
+    loadStore();
+    if (!memoryStore.products || memoryStore.products.length === 0) {
+      console.log('[Serverless Init] Performing initial database seed...');
+      await seedAll();
+    } else {
+      console.log(`[Init] Store loaded with ${memoryStore.products.length} products.`);
+    }
+    isInitialized = true;
+  }
+};
+
+// Middleware to ensure database and store are ready for serverless requests
+app.use(async (req, res, next) => {
+  try {
+    if (!isInitialized) {
+      await ensureInitialized();
+    }
+  } catch (err) {
+    console.error('Initialization error:', err);
+  }
+  next();
+});
+
 // Health Check
 app.get('/api/health', (req, res) => {
   res.json({
@@ -67,15 +94,7 @@ const PORT = process.env.PORT || 5000;
 
 // Initialize Server & Auto-Seed if empty
 const startServer = async () => {
-  await connectDB();
-  loadStore();
-
-  if (!memoryStore.products || memoryStore.products.length === 0) {
-    console.log('[Init] No products found. Performing initial database seed...');
-    await seedAll();
-  } else {
-    console.log(`[Init] Store loaded with ${memoryStore.products.length} products.`);
-  }
+  await ensureInitialized();
 
   const server = app.listen(PORT, () => {
     console.log(`=======================================================`);
@@ -93,4 +112,4 @@ if (require.main === module) {
   startServer();
 }
 
-module.exports = { app, startServer };
+module.exports = { app, startServer, ensureInitialized };
