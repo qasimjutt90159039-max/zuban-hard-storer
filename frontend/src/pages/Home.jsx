@@ -26,21 +26,24 @@ export default function Home() {
   const [categories, setCategories] = useState([]);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [bestsellers, setBestsellers] = useState([]);
+  const [sastaProducts, setSastaProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [quickViewProduct, setQuickViewProduct] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [catRes, featRes, bestRes] = await Promise.all([
+        const [catRes, featRes, bestRes, sastaRes] = await Promise.all([
           api.get('/categories'),
           api.get('/products/featured'),
-          api.get('/products/bestsellers')
+          api.get('/products/bestsellers'),
+          api.get('/products/sasta')
         ]);
 
-        if (catRes.data.success) setCategories(catRes.data.categories);
-        if (featRes.data.success) setFeaturedProducts(featRes.data.products);
-        if (bestRes.data.success) setBestsellers(bestRes.data.products);
+        if (catRes.data?.success) setCategories(catRes.data.categories || []);
+        if (featRes.data?.success) setFeaturedProducts(featRes.data.products || []);
+        if (bestRes.data?.success) setBestsellers(bestRes.data.products || []);
+        if (sastaRes.data?.success) setSastaProducts(sastaRes.data.products || []);
       } catch (err) {
         console.error('Error loading homepage data', err);
       } finally {
@@ -285,6 +288,45 @@ export default function Home() {
           </div>
         )}
       </section>
+
+      {/* SASTA HARDWARE / BUDGET DEALS SECTION (Under Rs. 1,000 & Super Discounts) */}
+      {sastaProducts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent rounded-3xl p-6 sm:p-10 border border-amber-500/30 shadow-sm relative overflow-hidden">
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-4 border-b border-amber-500/20 pb-4">
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500 text-charcoal-950 font-black text-xs uppercase tracking-wider mb-2">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  بچت بازار • Sasta Hardware Corner
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-charcoal-900 tracking-tight">
+                  Sasta Hardware & Budget Deals (Under Rs. 1,000)
+                </h2>
+                <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                  High-quality, affordable tools, fasteners, plumbing, and electrical accessories at wholesale rates in Lahore.
+                </p>
+              </div>
+              <Link
+                to="/shop?sasta=true"
+                className="px-5 py-2.5 rounded-xl bg-charcoal-900 hover:bg-charcoal-800 text-amber-400 font-bold text-xs flex items-center gap-2 shadow-sm transition-all whitespace-nowrap self-start sm:self-end"
+              >
+                <span>View All Budget Deals ({sastaProducts.length}+ items)</span>
+                <ChevronRight className="w-4 h-4" />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+              {sastaProducts.slice(0, 8).map((product) => (
+                <ProductCard
+                  key={product._id}
+                  product={product}
+                  onQuickView={setQuickViewProduct}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 5. INDUSTRIAL SPOTLIGHT & CONTRACTOR SUPPORT BANNER */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

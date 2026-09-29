@@ -36,6 +36,7 @@ export default function Shop() {
   const initialBrand = searchParams.get('brand') || 'all';
   const initialSort = searchParams.get('sort') || 'popular';
   const initialPage = parseInt(searchParams.get('page')) || 1;
+  const initialSasta = searchParams.get('sasta') === 'true';
 
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -55,6 +56,7 @@ export default function Shop() {
   const [stockStatus, setStockStatus] = useState('all');
   const [ratingFilter, setRatingFilter] = useState('');
   const [discountOnly, setDiscountOnly] = useState(false);
+  const [sastaOnly, setSastaOnly] = useState(initialSasta);
 
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
@@ -85,6 +87,7 @@ export default function Shop() {
         if (stockStatus !== 'all') params.set('stockStatus', stockStatus);
         if (ratingFilter) params.set('rating', ratingFilter);
         if (discountOnly) params.set('discountOnly', 'true');
+        if (sastaOnly) params.set('sasta', 'true');
 
         // Sync with browser URL
         setSearchParams(params, { replace: true });
@@ -114,7 +117,8 @@ export default function Shop() {
     maxPrice,
     stockStatus,
     ratingFilter,
-    discountOnly
+    discountOnly,
+    sastaOnly
   ]);
 
   const resetFilters = () => {
@@ -126,6 +130,7 @@ export default function Shop() {
     setStockStatus('all');
     setRatingFilter('');
     setDiscountOnly(false);
+    setSastaOnly(false);
     setSelectedSort('popular');
     setCurrentPage(1);
   };
@@ -227,6 +232,29 @@ export default function Shop() {
               <RotateCcw className="w-3 h-3" />
               Reset All
             </button>
+          </div>
+
+          {/* Sasta / Budget Deal Toggle */}
+          <div className={`p-3 rounded-xl border transition-all ${sastaOnly ? 'bg-amber-500/15 border-amber-500 shadow-sm' : 'bg-gray-50 border-gray-200 hover:border-amber-300'}`}>
+            <label className="flex items-center gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={sastaOnly}
+                onChange={(e) => {
+                  setSastaOnly(e.target.checked);
+                  setCurrentPage(1);
+                }}
+                className="w-4 h-4 text-amber-600 rounded focus:ring-amber-500 border-gray-300 accent-amber-500"
+              />
+              <div className="text-xs">
+                <span className="font-bold text-charcoal-900 flex items-center gap-1">
+                  🔥 Sasta Deals (Under Rs. 1,000)
+                </span>
+                <span className="text-[10px] text-gray-500 block">
+                  بچت بازار • Super affordable hardware
+                </span>
+              </div>
+            </label>
           </div>
 
           {/* Search keyword inside filter */}
@@ -399,10 +427,48 @@ export default function Shop() {
 
         {/* Products Grid & Results Area */}
         <div className="md:col-span-3">
+          {/* Quick Filter Bar */}
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            <button
+              onClick={() => {
+                setSastaOnly(!sastaOnly);
+                setCurrentPage(1);
+              }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm ${
+                sastaOnly
+                  ? 'bg-amber-500 text-charcoal-950 ring-2 ring-amber-600'
+                  : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-300'
+              }`}
+            >
+              <span>🔥 Sasta Hardware / Budget Deals (Under Rs. 1,000)</span>
+              {sastaOnly && <X className="w-3.5 h-3.5" />}
+            </button>
+            <button
+              onClick={() => {
+                setDiscountOnly(!discountOnly);
+                setCurrentPage(1);
+              }}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm ${
+                discountOnly
+                  ? 'bg-red-500 text-white ring-2 ring-red-600'
+                  : 'bg-red-50 text-red-700 hover:bg-red-100 border border-red-200'
+              }`}
+            >
+              <span>🏷️ On Sale / Discount Deals</span>
+              {discountOnly && <X className="w-3.5 h-3.5" />}
+            </button>
+          </div>
+
           {/* Active filter badges */}
-          {(selectedCategory !== 'all' || selectedBrand !== 'all' || searchQuery || discountOnly || stockStatus !== 'all') && (
+          {(selectedCategory !== 'all' || selectedBrand !== 'all' || searchQuery || discountOnly || sastaOnly || stockStatus !== 'all') && (
             <div className="flex flex-wrap items-center gap-2 mb-4 text-xs">
               <span className="text-gray-500 font-medium">Active Filters:</span>
+              {sastaOnly && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-charcoal-950 font-bold">
+                  🔥 Sasta Deals (Under Rs. 1,000)
+                  <X className="w-3 h-3 cursor-pointer" onClick={() => setSastaOnly(false)} />
+                </span>
+              )}
               {selectedCategory !== 'all' && (
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 font-semibold">
                   Category: {selectedCategory}

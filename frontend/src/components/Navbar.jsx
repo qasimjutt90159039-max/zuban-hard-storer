@@ -407,6 +407,12 @@ export default function Navbar() {
             <Link to="/shop" className="px-3.5 py-2.5 text-gray-300 hover:text-amber-400 transition-colors">
               Shop Tools
             </Link>
+            <Link
+              to="/shop?sasta=true"
+              className="px-3 py-1 text-amber-400 font-bold hover:text-amber-300 transition-colors flex items-center gap-1 bg-amber-500/10 border border-amber-500/30 rounded-md my-auto"
+            >
+              <span>🔥 Sasta Corner</span>
+            </Link>
             <Link to="/category/power-tools" className="px-3.5 py-2.5 text-gray-300 hover:text-amber-400 transition-colors">
               Power Tools
             </Link>
@@ -458,6 +464,9 @@ export default function Navbar() {
             </Link>
             <Link to="/shop" className="block py-2 text-white hover:text-amber-400 border-b border-charcoal-800">
               Shop All Products
+            </Link>
+            <Link to="/shop?sasta=true" className="block py-2 text-amber-400 font-bold hover:text-amber-300 border-b border-charcoal-800 flex items-center gap-1.5">
+              <span>🔥 Sasta Corner (بچت بازار)</span>
             </Link>
             <Link to="/categories" className="block py-2 text-white hover:text-amber-400 border-b border-charcoal-800">
               Browse Categories
